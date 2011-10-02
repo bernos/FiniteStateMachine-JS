@@ -3,12 +3,19 @@
 <head>
   <title></title>
   <script type="text/javascript" src="FiniteStateMachine.js"></script>
+  
+</head>
+<body>
+  <a id="load" href="#" onclick="fsm.doAction('load', 'mySong.mp3');">Load</a> 
+  <a id="play" href="#" onclick="fsm.doAction('play');">Play</a>
+  <a id="pause" href="#" onclick="fsm.doAction('pause');">Pause</a>
+
   <script type="text/javascript">
     var fsm = new FiniteStateMachine({
       initial: "waiting",
       states: [
         {
-          name:         "waiting",
+          name: "waiting",
           changeEvent:  "wait",
           transitions: [
             {
@@ -19,12 +26,12 @@
         },
 
         {
-          name:         "loading",
+          name: "loading",
           changeEvent:  "load",
           transitions: [
             {
               action: "loadComplete",
-              target: "playing"
+              target: "ready"
             },
             {
               action: "loadFailed",
@@ -34,7 +41,22 @@
         },
 
         {
-          name:         "playing",
+          name: "ready",
+          changeEvent: "ready",
+          transitions: [
+            {
+              action: "play",
+              target: "playing"
+            },
+            {
+              action: "load",
+              target: "loading"
+            }
+          ]
+        },
+
+        {
+          name: "playing",
           changeEvent:  "play",
           transitions: [
             {
@@ -47,18 +69,56 @@
             }
           ]
         },
+
+        {
+          name: "paused",
+          changeEvent:  "pause",
+          transitions: [
+            {
+              action: "play",
+              target: "playing"
+            },
+            {
+              action: "load",
+              target: "loading"
+            }
+          ]
+        },
         
       ]
     });
 
     fsm.bind(FiniteStateMachine.CHANGE, function(fsm, data){
-      console.log("Changed to " + fsm.getCurrentState());
+      console.log("Changed to ", fsm.getCurrentState());
     });
+
+    fsm.bind("wait", function(fsm, data) {
+      document.getElementById("pause").style.display = "none";
+      document.getElementById("play").style.display = "none";  
+    });
+
+    fsm.bind("load", function(fsm, data) {
+      // Load the song...
+      setTimeout('fsm.doAction("loadComplete");', 1000);
+    });
+
+    fsm.bind("ready", function(fsm, data) {
+      document.getElementById("pause").style.display = "none";
+      document.getElementById("play").style.display = "inline";  
+    });
+
+    fsm.bind("pause", function(fsm, data) {
+      document.getElementById("pause").style.display = "none";
+      document.getElementById("play").style.display = "inline";  
+    });
+
+    fsm.bind("play", function() {
+      document.getElementById("pause").style.display = "inline";
+      document.getElementById("play").style.display = "none";      
+    });
+
 
     fsm.run();
   </script>
-</head>
-<body>
-
 </body>
 </html>
