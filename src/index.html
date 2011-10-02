@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <title></title>
+  <script type="text/javascript" src="FiniteStateMachine.js"></script>
+  <script type="text/javascript">
+    var fsm = new FiniteStateMachine({
+      initial: "waiting",
+      states: [
+        {
+          name:         "waiting",
+          changeEvent:  "wait",
+          transitions: [
+            {
+              action: "load",
+              target: "loading"
+            }
+          ]
+        },
+
+        {
+          name:         "loading",
+          changeEvent:  "load",
+          transitions: [
+            {
+              action: "loadComplete",
+              target: "playing"
+            },
+            {
+              action: "loadFailed",
+              target: "error"
+            }
+          ]
+        },
+
+        {
+          name:         "playing",
+          changeEvent:  "play",
+          transitions: [
+            {
+              action: "pause",
+              target: "paused"
+            },
+            {
+              action: "load",
+              target: "loading"
+            }
+          ]
+        },
+        
+      ]
+    });
+
+    fsm.bind(FiniteStateMachine.CHANGE, function(fsm, data){
+      console.log("Changed to " + fsm.getCurrentState());
+    });
+
+    fsm.run();
+  </script>
+</head>
+<body>
+
+</body>
+</html>
