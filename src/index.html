@@ -88,8 +88,8 @@
       ]
     });
 
-    fsm.bind(FiniteStateMachine.CHANGE, function(fsm, data){
-      console.log("Changed to ", fsm.getCurrentState());
+    fsm.bind(FiniteStateMachine.CHANGE, function(fsm, state, data){
+      console.log("Changed to ", state);
     });
 
     fsm.bind("wait", function(fsm, data) {
