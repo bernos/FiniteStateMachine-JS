@@ -7,6 +7,13 @@
         handlers = {},
         self = this;
 
+    // Normalize states
+    spec.states = spec.states || {};
+
+    for (var n in spec.states) {
+      spec.states[n].name = n;
+    }    
+
     function _getInitialState() {
       return _getState(spec.initial);
     };
@@ -16,13 +23,7 @@
         return null;
       }
 
-      for (var i in spec.states) {
-        if (spec.states[i]['name'] === name) {
-          return spec.states[i];
-        }
-      }
-
-      return null;
+      return spec.states[name];
     };
 
     function _transitionTo(state, data) {
@@ -39,7 +40,9 @@
         return null;
       }
 
-      self.trigger(FSM.EXIT, self, currentState, data);
+      if (currentState) {
+        self.trigger(FSM.EXIT, self, currentState, data);
+      }
 
       if (state.entryEvent) {
         self.trigger(state.entryEvent, self, data);
@@ -65,13 +68,7 @@
       if (null === currentState) { return null; }
       if (null === currentState.transitions) { return null; }
 
-      for (var i = 0, m = currentState.transitions.length; i < m; i++) {
-        if (currentState.transitions[i]['action'] === action) {
-          return _getState(currentState.transitions[i]['target']);
-        }
-      }
-
-      return null;
+      return _getState(currentState.transitions[action]);
     }
 
     this.bind = function(event, handler) {

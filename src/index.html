@@ -13,84 +13,59 @@
   <script type="text/javascript">
     var fsm = new FiniteStateMachine({
       initial: "waiting",
-      states: [
-        {
-          name: "waiting",
+      states: {
+        waiting : {
           changeEvent:  "wait",
-          transitions: [
-            {
-              action: "load",
-              target: "loading"
-            }
-          ]
+          transitions: { 
+            load: "loading",
+          }
         },
 
-        {
-          name: "loading",
+        loading: {
           changeEvent:  "load",
-          transitions: [
-            {
-              action: "loadComplete",
-              target: "ready"
-            },
-            {
-              action: "loadFailed",
-              target: "error"
-            }
-          ]
+          transitions: {
+            loadComplete : "ready",
+            loadFailed : "error"
+          } 
         },
 
-        {
-          name: "ready",
+        ready : {
           changeEvent: "ready",
-          transitions: [
-            {
-              action: "play",
-              target: "playing"
-            },
-            {
-              action: "load",
-              target: "loading"
-            }
-          ]
+          transitions: {
+            play : "playing",
+            load : "loading"
+          }
         },
 
-        {
-          name: "playing",
+        playing : {
           changeEvent:  "play",
-          transitions: [
-            {
-              action: "pause",
-              target: "paused"
-            },
-            {
-              action: "load",
-              target: "loading"
-            }
-          ]
+          transitions: {
+            pause : "paused",
+            load : "loading"
+          }
         },
 
-        {
-          name: "paused",
+        paused : {
           changeEvent:  "pause",
-          transitions: [
-            {
-              action: "play",
-              target: "playing"
-            },
-            {
-              action: "load",
-              target: "loading"
-            }
-          ]
-        },
-        
-      ]
+          transitions: {
+            play : "playing",
+            load : "loading"
+          }
+        } 
+      } 
     });
 
     fsm.bind(FiniteStateMachine.CHANGE, function(fsm, state, data){
       console.log("Changed to ", state);
     });
+
+    fsm.bind(FiniteStateMachine.EXIT, function(fsm, state, data) {
+      console.log("Exiting ", state);
+    })
+
+    fsm.bind(FiniteStateMachine.ENTER, function(fsm, state, data) {
+      console.log("Entering ", state);
+    })
 
     fsm.bind("wait", function(fsm, data) {
       document.getElementById("pause").style.display = "none";
