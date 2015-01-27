@@ -1,11 +1,30 @@
 (function(global){
 
+  function validateSpec(spec) {
+    if (!spec) {
+      throw "No spec provided";
+    }
+
+    if (!spec.initial) {
+      throw "Spec does not include 'initial' state";
+    }
+
+    if (!spec.states) {
+      throw "Spec does not contain any states";
+    }
+
+    if (!spec.states[spec.initial]) {
+      throw "The specified initial state does not exist";
+    }
+  }
+
   var FSM = function(spec) {
-    var spec = spec || {},
-        currentState = null,
+    var currentState = null,
         cancelled = false,
         handlers = {},
         self = this;
+
+    validateSpec(spec);
 
     // Normalize states
     spec.states = spec.states || {};
@@ -105,6 +124,7 @@
       if (_getInitialState()) {
         _transitionTo(_getInitialState(), null);
       }
+      return self;
     };
 
     this.doAction = function(action, data) {
@@ -114,10 +134,13 @@
       if (newState) {
         _transitionTo(newState, data);
       }
+
+      return self;
     };
 
     this.cancel = function() {
       cancelled = true;
+      return self;
     };
 
     this.getCurrentState = function() {
