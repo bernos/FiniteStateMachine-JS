@@ -42,6 +42,50 @@ describe("A Finite State Machine", function()
 	  	});
 	});
 
+	describe("when executing a transition", function() 
+	{
+		it("should trigger the generic events for state exit, entry and change", function()
+		{
+			var result = [];
+
+			var fsm = new FiniteStateMachine({
+				initial : "open",
+				states : {
+					open : {
+						transitions : {
+							close : "closed"
+						}
+					},
+					closed : {
+						transitions : {
+							open : "open"
+						}
+					}
+				}
+			}).run();
+
+			fsm.bind(FiniteStateMachine.EXIT, function()
+			{
+				result.push("exit");
+			});
+
+			fsm.bind(FiniteStateMachine.ENTER, function()
+			{
+				result.push("enter");
+			});
+
+			fsm.bind(FiniteStateMachine.CHANGE, function()
+			{
+				result.push("change");
+			});
+
+			fsm.doAction("close");
+
+			expect(result[0]).toEqual("exit");
+			expect(result[1]).toEqual("enter");
+			expect(result[2]).toEqual("change");
+		});
+	});
 
   
 
