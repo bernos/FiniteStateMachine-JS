@@ -1,3 +1,24 @@
+function getStateMachine() {
+	return new FiniteStateMachine({
+		initial : "open",
+		states : {
+			open : {
+				transitions : {
+					close : "closed"
+				}
+			},
+			closed : {
+				transitions : {
+					open : "open"
+				}
+			}
+		}
+	});
+}
+
+
+
+
 describe("A Finite State Machine", function() 
 {
 	describe("constructor", function() 
@@ -48,42 +69,48 @@ describe("A Finite State Machine", function()
 		{
 			var result = [];
 
-			var fsm = new FiniteStateMachine({
-				initial : "open",
-				states : {
-					open : {
-						transitions : {
-							close : "closed"
-						}
-					},
-					closed : {
-						transitions : {
-							open : "open"
-						}
-					}
+			function logState(e) {
+				return function(fsm, state)
+				{
+					result.push(e + "." + state.name);
 				}
-			}).run();
+			}
 
-			fsm.bind(FiniteStateMachine.EXIT, function()
-			{
-				result.push("exit");
-			});
+			getStateMachine()				
+				.bind(FiniteStateMachine.EXIT, 		logState("exit"))
+				.bind(FiniteStateMachine.ENTER, 	logState("enter"))
+				.bind(FiniteStateMachine.CHANGE,	logState("change"))
+				.run()
+				.doAction("close");
 
-			fsm.bind(FiniteStateMachine.ENTER, function()
-			{
-				result.push("enter");
-			});
 
-			fsm.bind(FiniteStateMachine.CHANGE, function()
-			{
-				result.push("change");
-			});
+			expect(result[0]).toEqual("enter.open");
+			expect(result[1]).toEqual("change.open");
+			expect(result[2]).toEqual("exit.open");
+			expect(result[3]).toEqual("enter.closed");
+			expect(result[4]).toEqual("change.closed");
+		});
 
-			fsm.doAction("close");
+		it("should trigger transition events for each state", function() 
+		{
+			var result = [];
 
-			expect(result[0]).toEqual("exit");
-			expect(result[1]).toEqual("enter");
-			expect(result[2]).toEqual("change");
+			function logState(e) {
+				return function(fsm, state) {
+					result.push(e);
+				}
+			}
+
+			getStateMachine()
+				.bind("open.exit", logState("open.exit"))
+				.bind("closed.enter", logState("closed.enter"))
+				.bind("closed.change", logState("closed.change"))
+				.run()
+				.doAction("close");
+
+			expect(result[0]).toEqual("open.exit");
+			expect(result[1]).toEqual("closed.enter");
+			expect(result[2]).toEqual("closed.change");
 		});
 	});
 

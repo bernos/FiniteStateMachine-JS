@@ -50,8 +50,8 @@
       
       cancelled = false;
             
-      if (currentState && currentState.exitEvent) {
-        self.trigger(currentState.exitEvent, self, data);
+      if (currentState) {
+        self.trigger(currentState.name + ".exit", self, data);
       }  
 
       if (cancelled) {
@@ -63,9 +63,7 @@
         self.trigger(FSM.EXIT, self, currentState, data);
       }
 
-      if (state.entryEvent) {
-        self.trigger(state.entryEvent, self, data);
-      }
+      self.trigger(state.name + ".enter", self, data);
 
       if (cancelled) {
         cancelled = false;
@@ -76,10 +74,7 @@
 
       currentState = state;
 
-      if (currentState.changeEvent) {
-        self.trigger(currentState.changeEvent, self, data);
-      }
-
+      self.trigger(currentState.name + ".change", self, data);
       self.trigger(FSM.CHANGE, self, state, data);
     };
 
